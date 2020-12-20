@@ -1,0 +1,12 @@
+.error{
+    display: flex;
+    flex-direction: column;
+}
+.queryName{
+    color: blue;
+    font-weight: 700;
+    font-size: larger;
+}
+.ImageError{
+    width: 30%;
+}
