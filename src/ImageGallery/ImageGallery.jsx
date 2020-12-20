@@ -7,6 +7,7 @@ import ImageGalleryItem from './ImageGalleryItem';
 import Loader from '../Loader';
 import ImageError from '../ImageError';
 import Modal from '../Modal';
+import Button from '../Button';
 
 const Status = {
   IDLE: 'idle',
@@ -107,9 +108,7 @@ class ImageGallery extends Component {
               />
             </Modal>
           )}
-          <button type="button" onClick={this.fetchImages}>
-            Загрузить еще
-          </button>
+          <Button onClick={this.fetchImages} />
         </ul>
       );
     }
