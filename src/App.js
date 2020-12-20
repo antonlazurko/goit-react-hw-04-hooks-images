@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { ToastContainer } from 'react-toastify';
@@ -6,29 +6,45 @@ import { ToastContainer } from 'react-toastify';
 import styles from './App.module.css';
 import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
-class App extends Component {
-  state = {
-    searchQuery: '',
-    currentPage: 1,
+const App = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const onFormSubmit = searchSubmitQuery => {
+    setSearchQuery(searchSubmitQuery);
+    setCurrentPage(1);
   };
-  onFormSubmit = searchQuery => {
-    this.setState({ searchQuery, currentPage: 1 });
-  };
+  return (
+    <div className={styles.App}>
+      <Searchbar onFormSubmit={onFormSubmit} />
+      <ImageGallery searchQuery={searchQuery} currentPage={currentPage} />
 
-  render() {
-    return (
-      <div className={styles.App}>
-        <Searchbar onFormSubmit={this.onFormSubmit} />
-        <ImageGallery
-          searchQuery={this.state.searchQuery}
-          currentPage={this.state.currentPage}
-        />
+      <ToastContainer autoClose={3000} position="top-center" />
+    </div>
+  );
+};
+// class App extends Component {
+//   state = {
+//     searchQuery: '',
+//     currentPage: 1,
+//   };
+//   onFormSubmit = searchQuery => {
+//     this.setState({ searchQuery, currentPage: 1 });
+//   };
 
-        <ToastContainer autoClose={3000} position="top-center" />
-      </div>
-    );
-  }
-}
+//   render() {
+//     return (
+//       <div className={styles.App}>
+//         <Searchbar onFormSubmit={this.onFormSubmit} />
+//         <ImageGallery
+//           searchQuery={this.state.searchQuery}
+//           currentPage={this.state.currentPage}
+//         />
+
+//         <ToastContainer autoClose={3000} position="top-center" />
+//       </div>
+//     );
+//   }
+// }
 
 export default App;
 App.propTypes = {

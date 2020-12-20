@@ -79,11 +79,11 @@ class ImageGallery extends Component {
     const { query, error, status } = this.state;
     const { searchQuery } = this.props;
 
-    if (status === 'idle') {
+    if (status === Status.IDLE) {
       return <div>Введите текст запроса.</div>;
     }
 
-    if (status === 'pending') {
+    if (status === Status.PENDING) {
       return (
         <div className={styles.Loader}>
           <Loader searchQuery={searchQuery} />
@@ -91,11 +91,11 @@ class ImageGallery extends Component {
       );
     }
 
-    if (status === 'rejected') {
+    if (status === Status.REJECTED) {
       return <ImageError error={error} searchQuery={searchQuery} />;
     }
 
-    if (status === 'resolved') {
+    if (status === Status.RESOLVED) {
       return (
         <ul className={styles.ImageGallery}>
           <ImageGalleryItem query={query} />
