@@ -18,7 +18,7 @@ class App extends Component {
   render() {
     return (
       <div className={styles.App}>
-        <Searchbar onSubmit={this.onFormSubmit} />
+        <Searchbar onFormSubmit={this.onFormSubmit} />
         <ImageGallery
           searchQuery={this.state.searchQuery}
           currentPage={this.state.currentPage}
