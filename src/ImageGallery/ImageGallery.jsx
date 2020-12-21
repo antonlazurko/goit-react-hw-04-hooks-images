@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './ImageGallery.module.css';
@@ -15,105 +15,185 @@ const Status = {
   RESOLVED: 'resolved',
   REJECTED: 'rejected',
 };
-class ImageGallery extends Component {
-  state = {
-    query: [],
-    error: null,
-    status: Status.IDLE,
-    currentPage: 1,
-    showModal: false,
-    largeImageURL: '',
-  };
-
-  fetchImages = () => {
-    API(this.props.searchQuery, this.state.currentPage)
+const ImageGallery = ({ searchQuery, queryCurrentPage }) => {
+  const [queryArr, setQueryArr] = useState([]);
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState(Status.IDLE);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImageURL, setLargeImageURL] = useState('');
+  const isFirstRender = useRef(true);
+  const fetchImages = () => {
+    API(searchQuery, currentPage)
       .then(query => {
         const images = query.data.hits;
         if (!images.length) {
-          this.setState({ query, status: Status.REJECTED });
+          setQueryArr(queryArr);
+          setStatus(Status.REJECTED);
         } else {
-          this.setState(prevState => ({
-            query: [...prevState.query, ...images],
-            status: Status.RESOLVED,
-            currentPage: prevState.currentPage + 1,
-          }));
+          setQueryArr([...queryArr, ...images]);
+          setStatus(Status.RESOLVED);
+          setCurrentPage(currentPage + 1);
           window.scrollTo({
             top: document.documentElement.scrollHeight,
             behavior: 'smooth',
           });
-          window.addEventListener('click', this.onGalleryItemClick);
+          window.addEventListener('click', onGalleryItemClick);
         }
       })
-      .catch(error => this.setState({ error, status: Status.REJECTED }));
+      .catch(error => {
+        setError(error);
+        setStatus(Status.REJECTED);
+      });
   };
-  onGalleryItemClick = event => {
+  const onGalleryItemClick = event => {
     if (event.target.nodeName !== 'IMG') {
       return;
     }
-    this.setState({ largeImageURL: event.target.alt });
-    this.toggleModal();
+    setLargeImageURL(event.target.alt);
+    toggleModal();
   };
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  const toggleModal = () => {
+    setShowModal(!showModal);
   };
-  componentDidUpdate = (prevProps, prevState) => {
-    const prevQuery = prevProps.searchQuery;
-    const nextQuery = this.props.searchQuery;
-    if (prevQuery !== nextQuery) {
-      this.setState({
-        status: Status.PENDING,
-        query: [],
-        currentPage: this.props.currentPage,
-      });
-      setTimeout(() => {
-        this.fetchImages();
-      }, 3000);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-  };
-  componentWillUnmount() {
-    window.removeEventListener('click', this.onGalleryItemClick);
+    setStatus(Status.PENDING);
+    setQueryArr([]);
+    setCurrentPage(queryCurrentPage);
+    fetchImages();
+  }, [queryCurrentPage, searchQuery]);
+
+  if (status === Status.IDLE) {
+    return <div>Введите текст запроса.</div>;
   }
-  render() {
-    const { query, error, status } = this.state;
-    const { searchQuery } = this.props;
 
-    if (status === Status.IDLE) {
-      return <div>Введите текст запроса.</div>;
-    }
-
-    if (status === Status.PENDING) {
-      return (
-        <div className={styles.Loader}>
-          <Loader searchQuery={searchQuery} />
-        </div>
-      );
-    }
-
-    if (status === Status.REJECTED) {
-      return <ImageError error={error} searchQuery={searchQuery} />;
-    }
-
-    if (status === Status.RESOLVED) {
-      return (
-        <ul className={styles.ImageGallery}>
-          <ImageGalleryItem query={query} />
-          {this.state.showModal && (
-            <Modal onClose={this.toggleModal}>
-              <img
-                src={this.state.largeImageURL}
-                alt=""
-                className={styles.image}
-              />
-            </Modal>
-          )}
-          <Button onClick={this.fetchImages} />
-        </ul>
-      );
-    }
+  if (status === Status.PENDING) {
+    return (
+      <div className={styles.Loader}>
+        <Loader searchQuery={searchQuery} />
+      </div>
+    );
   }
-}
+
+  if (status === Status.REJECTED) {
+    return <ImageError error={error} searchQuery={searchQuery} />;
+  }
+
+  if (status === Status.RESOLVED) {
+    return (
+      <ul className={styles.ImageGallery}>
+        <ImageGalleryItem query={queryArr} />
+        {showModal && (
+          <Modal onClose={toggleModal}>
+            <img src={largeImageURL} alt="" className={styles.image} />
+          </Modal>
+        )}
+        <Button onClick={fetchImages} />
+      </ul>
+    );
+  }
+};
+// class ImageGallery extends Component {
+//   state = {
+//     query: [],
+//     error: null,
+//     status: Status.IDLE,
+//     currentPage: 1,
+//     showModal: false,
+//     largeImageURL: '',
+//   };
+
+//   fetchImages = () => {
+//     API(this.props.searchQuery, this.state.currentPage)
+//       .then(query => {
+//         const images = query.data.hits;
+//         if (!images.length) {
+//           this.setState({ query, status: Status.REJECTED });
+//         } else {
+//           this.setState(prevState => ({
+//             query: [...prevState.query, ...images],
+//             status: Status.RESOLVED,
+//             currentPage: prevState.currentPage + 1,
+//           }));
+//           window.scrollTo({
+//             top: document.documentElement.scrollHeight,
+//             behavior: 'smooth',
+//           });
+//           window.addEventListener('click', this.onGalleryItemClick);
+//         }
+//       })
+//       .catch(error => this.setState({ error, status: Status.REJECTED }));
+//   };
+//   onGalleryItemClick = event => {
+//     if (event.target.nodeName !== 'IMG') {
+//       return;
+//     }
+//     this.setState({ largeImageURL: event.target.alt });
+//     this.toggleModal();
+//   };
+//   toggleModal = () => {
+//     this.setState(({ showModal }) => ({
+//       showModal: !showModal,
+//     }));
+//   };
+//   componentDidUpdate = (prevProps, prevState) => {
+//     const prevQuery = prevProps.searchQuery;
+//     const nextQuery = this.props.searchQuery;
+//     if (prevQuery !== nextQuery) {
+//       this.setState({
+//         status: Status.PENDING,
+//         query: [],
+//         currentPage: this.props.queryCurrentPage,
+//       });
+//       this.fetchImages();
+//     }
+//   };
+//   componentWillUnmount() {
+//     window.removeEventListener('click', this.onGalleryItemClick);
+//   }
+//   render() {
+//     const { query, error, status } = this.state;
+//     const { searchQuery } = this.props;
+
+//     if (status === Status.IDLE) {
+//       return <div>Введите текст запроса.</div>;
+//     }
+
+//     if (status === Status.PENDING) {
+//       return (
+//         <div className={styles.Loader}>
+//           <Loader searchQuery={searchQuery} />
+//         </div>
+//       );
+//     }
+
+//     if (status === Status.REJECTED) {
+//       return <ImageError error={error} searchQuery={searchQuery} />;
+//     }
+
+//     if (status === Status.RESOLVED) {
+//       return (
+//         <ul className={styles.ImageGallery}>
+//           <ImageGalleryItem query={query} />
+//           {this.state.showModal && (
+//             <Modal onClose={this.toggleModal}>
+//               <img
+//                 src={this.state.largeImageURL}
+//                 alt=""
+//                 className={styles.image}
+//               />
+//             </Modal>
+//           )}
+//           <Button onClick={this.fetchImages} />
+//         </ul>
+//       );
+//     }
+//   }
+// }
 export default ImageGallery;
 ImageGallery.propTypes = {
   currentPage: PropTypes.number,

@@ -8,15 +8,18 @@ import Searchbar from './Searchbar';
 import ImageGallery from './ImageGallery';
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [queryCurrentPage, setQueryCurrentPage] = useState(1);
   const onFormSubmit = searchSubmitQuery => {
     setSearchQuery(searchSubmitQuery);
-    setCurrentPage(1);
+    setQueryCurrentPage(1);
   };
   return (
     <div className={styles.App}>
       <Searchbar onFormSubmit={onFormSubmit} />
-      <ImageGallery searchQuery={searchQuery} currentPage={currentPage} />
+      <ImageGallery
+        searchQuery={searchQuery}
+        queryCurrentPage={queryCurrentPage}
+      />
 
       <ToastContainer autoClose={3000} position="top-center" />
     </div>
