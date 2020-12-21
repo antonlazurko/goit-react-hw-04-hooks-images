@@ -65,7 +65,7 @@ const ImageGallery = ({ searchQuery, queryCurrentPage }) => {
     setQueryArr([]);
     setCurrentPage(queryCurrentPage);
     fetchImages();
-  }, [queryCurrentPage, searchQuery]);
+  }, [searchQuery]);
 
   if (status === Status.IDLE) {
     return <div>Введите текст запроса.</div>;
