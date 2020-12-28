@@ -65,6 +65,7 @@ const ImageGallery = ({ searchQuery, queryCurrentPage }) => {
     setQueryArr([]);
     setCurrentPage(queryCurrentPage);
     fetchImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   if (status === Status.IDLE) {
