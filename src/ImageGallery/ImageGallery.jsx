@@ -31,7 +31,7 @@ const ImageGallery = ({ searchQuery, queryCurrentPage }) => {
           setQueryArr(queryArr);
           setStatus(Status.REJECTED);
         } else {
-          setQueryArr([...queryArr, ...images]);
+          setQueryArr(prevImages => [...prevImages, ...images]);
           setStatus(Status.RESOLVED);
           setCurrentPage(currentPage + 1);
           window.scrollTo({
